@@ -1,0 +1,7 @@
+.matched-password{
+    color: green;
+}
+
+.unmatched-password{
+    color: red;
+}
