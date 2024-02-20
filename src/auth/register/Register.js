@@ -1,39 +1,46 @@
 import React, { useState } from "react";
-import { verifyEmailAddress,funConfirmPassword } from "../../utility/Verification";
+import {
+  verifyEmailAddress,
+  funConfirmPassword,
+} from "../../utility/Verification";
 import ButtonAppBar from "../../components/home/Navbar";
-import './register.css'
-import bcrypt from 'bcryptjs'
+import "./register.css";
+import axios from "axios";
+import Cookies from 'js-cookie'
 
-function Register() {
+
+
+const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [age, setAge] = useState(0);
   const [username, setUsername] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  function handleFormSubmission(e){
+  const handleFormSubmission = (e) => {
     e.preventDefault();
-    const hashedPassword = bcrypt.hashSync(password,10);
-    const user = {name, email,age,username, phoneNumber, password:hashedPassword};
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    users.push(user);
-    localStorage.setItem("users", JSON.stringify(users));
-    alert("Registration successful!");
+    const user = { name, email, age, username, password };
+    axios
+      .post("http://localhost:3000/user/register", user)
+      .then((response) => {
+        console.log(response.data)
+        Cookies.set('token', response.data.token);
+        Cookies.set('Authenticated', true);
+      })
+      .catch((error) => console.error(error));
+
     setName("");
     setEmail("");
     setPassword("");
-    setPhoneNumber("");
     setUsername("");
     setAge(0);
     setConfirmPassword("");
-  }
-
+  };
 
   return (
     <>
-      <ButtonAppBar/>
+      <ButtonAppBar />
       <h1>Register Page</h1>
       <form method="post" onSubmit={handleFormSubmission}>
         <input
@@ -64,52 +71,47 @@ function Register() {
           ""
         )}
         <input
-            className='register-form-age'
-            type="number"
-            placeholder="Age"
-            min={age}
-            max={120}
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-            style={{ padding: "10px" }}required
+          className="register-form-age"
+          type="number"
+          placeholder="Age"
+          min={age}
+          max={120}
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
+          style={{ padding: "10px" }}
+          required
         />
-        <br/>
-        <input 
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter username"
-            style={{padding: "10px" }}
-            required
-        />
-        <input 
-            type="text"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            placeholder="Enter Phone Number"
-            style={{padding: "10px" }}
-            required
-        />
-        <input 
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter Password"
-            style={{padding: "10px" }}
-            required
-        />
-        <input 
-            className={funConfirmPassword(password,confirmPassword) ? "matched-password" : "unmatched-password"}
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm Password"
-            style={{padding: "10px" }}
-            required
+        <br />
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter username"
+          style={{ padding: "10px" }}
+          required
         />
         <input
-            type="submit" 
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter Password"
+          style={{ padding: "10px" }}
+          required
         />
+        <input
+          className={
+            funConfirmPassword(password, confirmPassword)
+              ? "matched-password"
+              : "unmatched-password"
+          }
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Confirm Password"
+          style={{ padding: "10px" }}
+          required
+        />
+        <input type="submit" />
       </form>
     </>
   );

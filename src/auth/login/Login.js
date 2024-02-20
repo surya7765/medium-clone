@@ -1,28 +1,26 @@
 import React, { useState } from "react";
 import ButtonAppBar from "../../components/home/Navbar";
-import bcrypt from "bcryptjs";
+import axios from 'axios';
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   function handleFormSubmission(e) {
     e.preventDefault();
-    const users = JSON.parse(localStorage.getItem("users"));
-    if (!users) {
-      alert("No User Found");
-    } else {
-      const user = users.find((user) => user.username === username);
-      if (!user) {
-        alert(username + " is not a valid user");
-      } else {
-        if (bcrypt.compareSync(password, user.password)) {
-          alert("Signed in successfully!");
-        } else {
-          alert("Signed in failed due to invalid password");
-        }
-      }
-    }
+    const user = { username, password }
+    axios
+      .post("http://localhost:3000/user/login", user)
+      .then((response) => {
+        console.log(response.data)
+        Cookies.set('token', response.data.token);
+        Cookies.set('Authenticated', true);
+        navigate('/')
+      })
+      .catch((error) => console.error(error));
   }
 
   return (
@@ -46,7 +44,7 @@ function Login() {
           style={{ padding: "10px" }}
           required
         />
-        <input type="submit" value="Sign In" />
+        <button  type="submit" >Sign In</button>
       </form>
     </>
   );

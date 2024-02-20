@@ -5,4 +5,3 @@ export const resolve = {
         "crypto": require.resolve("crypto-browserify")
     }
 };
-  
